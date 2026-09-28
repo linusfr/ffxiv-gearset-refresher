@@ -3,8 +3,9 @@
 	<h1>Gearset Refresher</h1>
 	<p>Keep your FFXIV gear sets updated with the game's recommended equipment.</p>
 	<p>
+		<a href="https://github.com/linusfr/ffxiv-gearset-refresher/releases/latest"><img src="https://img.shields.io/github/v/release/linusfr/ffxiv-gearset-refresher?sort=semver&amp;display_name=tag&amp;label=latest&amp;color=blue&amp;cacheSeconds=300" alt="Latest release"></a>
 		<a href="https://github.com/linusfr/ffxiv-gearset-refresher/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/linusfr/ffxiv-gearset-refresher/ci.yml?branch=main&amp;label=ci&amp;cacheSeconds=300" alt="CI status"></a>
-		<a href="LICENSE"><img src="https://img.shields.io/github/license/linusfr/ffxiv-gearset-refresher?color=blue" alt="MIT licence"></a>
+		<a href="LICENSE"><img src="https://img.shields.io/github/license/linusfr/ffxiv-gearset-refresher?color=blue" alt="MIT license"></a>
 	</p>
 </div>
 
@@ -70,6 +71,12 @@ just install
 
 `DALAMUD_HOME` defaults to `~/.xlcore/dalamud/Hooks/dev`. Override it when
 Dalamud lives elsewhere.
+
+## Versioning
+
+`go-semantic-release` reads conventional commits on `main`. CI builds and tests
+the plugin before creating a release, attaching `GearsetRefresher.zip`, and
+updating `pluginmaster.json`.
 
 ## Architecture
 

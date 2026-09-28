@@ -2,22 +2,135 @@ name: ci
 
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
+  checks:
+    name: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.semrel.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Compute version without tagging so failed builds cannot leave orphan releases.
+      - name: Next version
+        id: semrel
+        uses: go-semantic-release/action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          custom-arguments: '--provider-opt strip_v_tag_prefix=true'
+          dry: true
+
   build:
+    name: build
+    needs: checks
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-dotnet@v6
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
+
       - name: Download Dalamud staging
         shell: pwsh
         run: |
           Invoke-WebRequest "https://github.com/goatcorp/dalamud-distrib/raw/main/stg/latest.zip" -OutFile dalamud.zip
           Expand-Archive dalamud.zip -DestinationPath "$env:APPDATA\XIVLauncher\addon\Hooks\dev" -Force
+
       - name: Build
-        run: dotnet build plugin/GearsetRefresher.csproj --configuration Release
+        shell: pwsh
+        run: |
+          $ver = "${{ needs.checks.outputs.version }}"
+          if (-not $ver) { $ver = "0.0.0" }
+          dotnet build plugin/GearsetRefresher.csproj --configuration Release -p:Version=$ver
+
       - name: Test
         run: dotnet run --project tests/GearsetRefresher.Tests.csproj
+
+      - name: Collect DalamudPackager output
+        shell: pwsh
+        run: |
+          $zip = "plugin/bin/Release/GearsetRefresher/latest.zip"
+          if (-not (Test-Path $zip)) { Write-Error "DalamudPackager zip not found at $zip"; exit 1 }
+          Copy-Item $zip GearsetRefresher.zip
+
+      - name: Upload for release
+        uses: actions/upload-artifact@v7
+        with:
+          name: plugin-zip
+          path: GearsetRefresher.zip
+          retention-days: 1
+
+  release:
+    name: release
+    needs: [checks, build]
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      needs.checks.outputs.version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: plugin-zip
+
+      - name: Tag and create release
+        uses: go-semantic-release/action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          custom-arguments: '--provider-opt strip_v_tag_prefix=true'
+          changelog-file: CHANGELOG.md
+
+      - name: Attach plugin
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.checks.outputs.version }}
+          files: GearsetRefresher.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Dalamud compares manifest versions and timestamps when checking updates.
+      - name: Update pluginmaster
+        env:
+          VERSION: ${{ needs.checks.outputs.version }}
+        run: |
+          python3 - <<'PY'
+          import json, os, time
+          version = os.environ["VERSION"]
+          with open("pluginmaster.json") as f:
+              entries = json.load(f)
+          entries[0]["AssemblyVersion"] = version + ".0"
+          entries[0]["LastUpdated"] = int(time.time())
+          with open("pluginmaster.json", "w") as f:
+              json.dump(entries, f, indent=2)
+              f.write("\n")
+          PY
+
+      - name: Commit release metadata
+        env:
+          VERSION: ${{ needs.checks.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pluginmaster.json
+          if [ -f CHANGELOG.md ]; then git add CHANGELOG.md; fi
+          git diff --cached --quiet || git commit -m "chore: pluginmaster ${VERSION} [skip ci]"
+          git push
