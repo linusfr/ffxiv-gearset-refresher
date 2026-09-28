@@ -1,0 +1,25 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+	<PropertyGroup>
+		<Version Condition="'$(Version)' == ''">0.1.0</Version>
+		<AssemblyName>GearsetRefresher</AssemblyName>
+		<RootNamespace>GearsetRefresher</RootNamespace>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Author>linusfr</Author>
+		<Name>Gearset Refresher</Name>
+		<Punchline>Equips recommended gear and saves it back to your gear sets.</Punchline>
+		<Description>Refresh the current job or one gear set per unlocked job with the game's recommended equipment.&#10;&#10;Commands:&#10;/gearrefresh - open window&#10;/gearrefresh current - refresh current job&#10;/gearrefresh all - refresh all jobs&#10;/gearrefresh cancel - stop and restore starting job</Description>
+		<ApplicableVersion>any</ApplicableVersion>
+		<DalamudApiLevel>15</DalamudApiLevel>
+		<Tags>gear;gearset;equipment;utility</Tags>
+		<RepoUrl>https://github.com/linusfr/ffxiv-gearset-refresher</RepoUrl>
+		<IconUrl>https://raw.githubusercontent.com/linusfr/ffxiv-gearset-refresher/main/images/icon.png</IconUrl>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="..\images\icon.png" Link="images\icon.png" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+</Project>

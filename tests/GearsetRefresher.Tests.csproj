@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="../plugin/CommandArguments.cs" Link="CommandArguments.cs" />
+		<Compile Include="../plugin/GearsetTarget.cs" Link="GearsetTarget.cs" />
+		<Compile Include="../plugin/RefreshPlan.cs" Link="RefreshPlan.cs" />
+	</ItemGroup>
+</Project>

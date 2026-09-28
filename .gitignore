@@ -1,0 +1,14 @@
+plugin/bin/
+plugin/obj/
+tests/bin/
+tests/obj/
+*.dll
+*.zip
+.vs/
+.vscode/
+*.user
+*.suo
+.DS_Store
+CLAUDE.md
+AGENTS.md
+.ai-session-state.md
