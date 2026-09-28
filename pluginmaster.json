@@ -1,0 +1,24 @@
+[
+	{
+		"Author": "linusfr",
+		"Name": "Gearset Refresher",
+		"InternalName": "GearsetRefresher",
+		"Punchline": "Equips recommended gear and saves it back to your gear sets.",
+		"Description": "Refresh the current job or one gear set per unlocked job with the game's recommended equipment.",
+		"ApplicableVersion": "any",
+		"DalamudApiLevel": 15,
+		"Tags": [
+			"gear",
+			"gearset",
+			"equipment",
+			"utility"
+		],
+		"AssemblyVersion": "0.1.0.0",
+		"RepoUrl": "https://github.com/linusfr/ffxiv-gearset-refresher",
+		"DownloadLinkInstall": "https://github.com/linusfr/ffxiv-gearset-refresher/releases/latest/download/GearsetRefresher.zip",
+		"DownloadLinkUpdate": "https://github.com/linusfr/ffxiv-gearset-refresher/releases/latest/download/GearsetRefresher.zip",
+		"DownloadLinkTesting": "https://github.com/linusfr/ffxiv-gearset-refresher/releases/latest/download/GearsetRefresher.zip",
+		"LastUpdated": 1790615088,
+		"IconUrl": "https://raw.githubusercontent.com/linusfr/ffxiv-gearset-refresher/main/images/icon.png"
+	}
+]
