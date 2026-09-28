@@ -12,6 +12,17 @@ Gearset Refresher is a Dalamud plugin that equips recommended gear and saves it
 back to your existing gear sets. Refresh your current job from the plugin window
 or update one gear set per job with a single command.
 
+## Install
+
+In `/xlsettings`, open **Experimental** > **Custom Plugin Repositories**, paste
+this URL, click `+`, then save:
+
+```text
+https://raw.githubusercontent.com/linusfr/ffxiv-gearset-refresher/main/pluginmaster.json
+```
+
+Then open `/xlplugins`, search for **Gearset Refresher**, and select **Install**.
+
 ## Features
 
 - Refresh the currently equipped gear set.
