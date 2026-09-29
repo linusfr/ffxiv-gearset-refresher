@@ -1,12 +1,10 @@
-## 1.0.0 (2026-09-28)
+## 1.1.0 (2026-09-29)
 
 #### Feature
 
-* bootstrap (8e9aa2a9)
+* allow automatic refresh on level up (ceb7bcd6)
 
 #### Chores
 
-* add missing semantic release flow (e6e342e7)
-* add missing pluginmaster (d83796ea)
-* add install instructions (14cbe034)
+* pluginmaster 1.0.0 [skip ci] (633eb9b4)
 
