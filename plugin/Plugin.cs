@@ -1,11 +1,14 @@
 using System;
 
 using Dalamud.Game.Command;
+using Dalamud.Game.Inventory.InventoryEventArgTypes;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 
 using GearsetRefresher.Windows;
+
+using Lumina.Excel.Sheets;
 
 namespace GearsetRefresher;
 
@@ -17,6 +20,8 @@ public sealed class Plugin : IDalamudPlugin
 	[PluginService] internal static IFramework Framework { get; private set; } = null!;
 	[PluginService] internal static ICondition Condition { get; private set; } = null!;
 	[PluginService] internal static IClientState ClientState { get; private set; } = null!;
+	[PluginService] internal static IGameInventory GameInventory { get; private set; } = null!;
+	[PluginService] internal static IDataManager DataManager { get; private set; } = null!;
 	[PluginService] internal static IChatGui ChatGui { get; private set; } = null!;
 	[PluginService] internal static IPluginLog Log { get; private set; } = null!;
 
@@ -26,7 +31,8 @@ public sealed class Plugin : IDalamudPlugin
 	private readonly GearsetService _gearsets;
 	private readonly RefreshRunner _runner;
 	private readonly MainWindow _window;
-	private readonly LevelUpRefresh _levelUpRefresh = new();
+	private readonly AutomaticRefresh _levelUpRefresh = new();
+	private readonly AutomaticRefresh _lootRefresh = new();
 
 	public Plugin()
 	{
@@ -44,36 +50,59 @@ public sealed class Plugin : IDalamudPlugin
 		PluginInterface.UiBuilder.OpenMainUi += OpenWindow;
 		PluginInterface.UiBuilder.OpenConfigUi += OpenWindow;
 		ClientState.LevelChanged += OnLevelChanged;
+		GameInventory.ItemAddedExplicit += OnItemAdded;
 		Framework.Update += OnFrameworkUpdate;
 	}
 
 	private void OnLevelChanged(uint classJobId, uint level)
 	{
+		var target = _gearsets.CurrentTarget();
+		if (target is null || target.ClassJobId != classJobId)
+			return;
+
 		_levelUpRefresh.Queue(
 			_configuration.RefreshCurrentOnLevelUp,
 			_runner.IsRunning,
-			classJobId,
-			level,
-			_gearsets.CurrentTarget());
+			target,
+			$"Level {level} reached; refreshing current gear set.");
+	}
+
+	private void OnItemAdded(InventoryItemAddedArgs data)
+	{
+		if (!DataManager.GetExcelSheet<Item>().TryGetRow(data.Item.BaseItemId, out var item) ||
+			item.EquipSlotCategory.RowId == 0)
+			return;
+
+		_lootRefresh.Queue(
+			_configuration.RefreshCurrentOnLoot,
+			_runner.IsRunning,
+			_gearsets.CurrentTarget(),
+			"Equippable item received; refreshing current gear set.");
 	}
 
 	private void OnFrameworkUpdate(IFramework framework)
 	{
-		if (!_configuration.RefreshCurrentOnLevelUp)
-		{
-			_levelUpRefresh.Clear();
+		var target = _gearsets.CurrentTarget();
+		var request = _levelUpRefresh.ShouldStart(
+			_configuration.RefreshCurrentOnLevelUp,
+			_runner.IsRunning,
+			target)
+			? _levelUpRefresh
+			: _lootRefresh.ShouldStart(
+				_configuration.RefreshCurrentOnLoot,
+				_runner.IsRunning,
+				target)
+				? _lootRefresh
+				: null;
+		if (request is null)
 			return;
-		}
 
-		if (!_levelUpRefresh.ShouldStart(_runner.IsRunning, _gearsets.CurrentTarget()))
-			return;
-
-		var level = _levelUpRefresh.Level;
 		if (!_runner.StartCurrent())
 			return;
 
-		_levelUpRefresh.Clear();
-		Report($"Level {level} reached; refreshing current gear set.");
+		var message = request.Message;
+		request.Clear();
+		Report(message);
 	}
 
 	private void OnCommand(string command, string arguments)
@@ -117,6 +146,7 @@ public sealed class Plugin : IDalamudPlugin
 	public void Dispose()
 	{
 		Framework.Update -= OnFrameworkUpdate;
+		GameInventory.ItemAddedExplicit -= OnItemAdded;
 		ClientState.LevelChanged -= OnLevelChanged;
 		PluginInterface.UiBuilder.Draw -= _window.Draw;
 		PluginInterface.UiBuilder.OpenMainUi -= OpenWindow;

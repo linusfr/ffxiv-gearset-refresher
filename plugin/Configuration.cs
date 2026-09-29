@@ -13,4 +13,7 @@ public sealed class Configuration : IPluginConfiguration
 
 	/// <summary>Gets or sets whether current gear refreshes after its job gains a level.</summary>
 	public bool RefreshCurrentOnLevelUp { get; set; }
+
+	/// <summary>Gets or sets whether current gear refreshes after receiving equippable loot.</summary>
+	public bool RefreshCurrentOnLoot { get; set; }
 }

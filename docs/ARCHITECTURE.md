@@ -13,9 +13,10 @@ equip, wait, and save phases. Delays let client state settle between calls.
 Eight-second timeouts prevent silent hangs. Bulk runs restore starting gear set
 after success, cancellation, or failure when possible.
 
-`LevelUpRefresh` holds an opt-in level-up request until `RefreshRunner` can start.
-It accepts only changes for the current gear set and drops pending work after a
-job switch or another refresh starts, preventing delayed updates to the wrong set.
+`AutomaticRefresh` holds opt-in level-up and equippable-loot requests until
+`RefreshRunner` can start. Requests stay tied to exact current gear set and drop
+after a set switch or another refresh starts, preventing delayed updates to the
+wrong set. Dalamud's interpreted item-added event excludes inventory moves.
 
 One set per class job is deliberate. Updating every same-job set would destroy
 alternate materia, weapon, or level-synced loadouts without useful extra

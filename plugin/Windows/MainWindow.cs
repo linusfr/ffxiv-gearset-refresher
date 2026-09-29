@@ -32,7 +32,7 @@ public sealed class MainWindow
 		if (!IsVisible)
 			return;
 
-		ImGui.SetNextWindowSize(new Vector2(480, 305), ImGuiCond.FirstUseEver);
+		ImGui.SetNextWindowSize(new Vector2(480, 330), ImGuiCond.FirstUseEver);
 		if (!ImGui.Begin("Gearset Refresher###GearsetRefresher", ref _isVisible))
 		{
 			ImGui.End();
@@ -44,6 +44,12 @@ public sealed class MainWindow
 		if (ImGui.Checkbox("Refresh current gear on level up", ref refreshOnLevelUp))
 		{
 			_configuration.RefreshCurrentOnLevelUp = refreshOnLevelUp;
+			_saveConfiguration();
+		}
+		var refreshOnLoot = _configuration.RefreshCurrentOnLoot;
+		if (ImGui.Checkbox("Refresh current gear after receiving loot", ref refreshOnLoot))
+		{
+			_configuration.RefreshCurrentOnLoot = refreshOnLoot;
 			_saveConfiguration();
 		}
 		ImGui.Spacing();
