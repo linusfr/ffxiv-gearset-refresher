@@ -13,12 +13,12 @@
       "equipment",
       "utility"
     ],
-    "AssemblyVersion": "1.1.1.0",
+    "AssemblyVersion": "1.2.0.0",
     "RepoUrl": "https://github.com/linusfr/ffxiv-gearset-refresher",
     "DownloadLinkInstall": "https://github.com/linusfr/ffxiv-gearset-refresher/releases/latest/download/GearsetRefresher.zip",
     "DownloadLinkUpdate": "https://github.com/linusfr/ffxiv-gearset-refresher/releases/latest/download/GearsetRefresher.zip",
     "DownloadLinkTesting": "https://github.com/linusfr/ffxiv-gearset-refresher/releases/latest/download/GearsetRefresher.zip",
-    "LastUpdated": 1790671412,
+    "LastUpdated": 1790674517,
     "IconUrl": "https://raw.githubusercontent.com/linusfr/ffxiv-gearset-refresher/main/images/icon.png"
   }
 ]
