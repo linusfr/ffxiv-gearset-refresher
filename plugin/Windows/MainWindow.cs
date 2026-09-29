@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 
 using Dalamud.Bindings.ImGui;
@@ -8,6 +9,8 @@ namespace GearsetRefresher.Windows;
 public sealed class MainWindow
 {
 	private readonly RefreshRunner _runner;
+	private readonly Configuration _configuration;
+	private readonly Action _saveConfiguration;
 	private bool _isVisible;
 	private bool _bulkConfirmed;
 
@@ -17,9 +20,11 @@ public sealed class MainWindow
 		set => _isVisible = value;
 	}
 
-	public MainWindow(RefreshRunner runner)
+	public MainWindow(RefreshRunner runner, Configuration configuration, Action saveConfiguration)
 	{
 		_runner = runner;
+		_configuration = configuration;
+		_saveConfiguration = saveConfiguration;
 	}
 
 	public void Draw()
@@ -27,7 +32,7 @@ public sealed class MainWindow
 		if (!IsVisible)
 			return;
 
-		ImGui.SetNextWindowSize(new Vector2(480, 275), ImGuiCond.FirstUseEver);
+		ImGui.SetNextWindowSize(new Vector2(480, 305), ImGuiCond.FirstUseEver);
 		if (!ImGui.Begin("Gearset Refresher###GearsetRefresher", ref _isVisible))
 		{
 			ImGui.End();
@@ -35,6 +40,12 @@ public sealed class MainWindow
 		}
 
 		ImGui.TextWrapped("Equip the game's recommended gear, then save it into a gear set.");
+		var refreshOnLevelUp = _configuration.RefreshCurrentOnLevelUp;
+		if (ImGui.Checkbox("Refresh current gear on level up", ref refreshOnLevelUp))
+		{
+			_configuration.RefreshCurrentOnLevelUp = refreshOnLevelUp;
+			_saveConfiguration();
+		}
 		ImGui.Spacing();
 
 		ImGui.BeginDisabled(_runner.IsRunning);

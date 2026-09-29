@@ -22,14 +22,18 @@ public sealed class Plugin : IDalamudPlugin
 
 	private const string Command = "/gearrefresh";
 
+	private readonly Configuration _configuration;
+	private readonly GearsetService _gearsets;
 	private readonly RefreshRunner _runner;
 	private readonly MainWindow _window;
+	private readonly LevelUpRefresh _levelUpRefresh = new();
 
 	public Plugin()
 	{
-		var gearsets = new GearsetService(ClientState, Condition, Log);
-		_runner = new RefreshRunner(gearsets, Framework, Report, Log);
-		_window = new MainWindow(_runner);
+		_configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+		_gearsets = new GearsetService(ClientState, Condition, Log);
+		_runner = new RefreshRunner(_gearsets, Framework, Report, Log);
+		_window = new MainWindow(_runner, _configuration, SaveConfiguration);
 
 		CommandManager.AddHandler(Command, new CommandInfo(OnCommand)
 		{
@@ -39,6 +43,37 @@ public sealed class Plugin : IDalamudPlugin
 		PluginInterface.UiBuilder.Draw += _window.Draw;
 		PluginInterface.UiBuilder.OpenMainUi += OpenWindow;
 		PluginInterface.UiBuilder.OpenConfigUi += OpenWindow;
+		ClientState.LevelChanged += OnLevelChanged;
+		Framework.Update += OnFrameworkUpdate;
+	}
+
+	private void OnLevelChanged(uint classJobId, uint level)
+	{
+		_levelUpRefresh.Queue(
+			_configuration.RefreshCurrentOnLevelUp,
+			_runner.IsRunning,
+			classJobId,
+			level,
+			_gearsets.CurrentTarget());
+	}
+
+	private void OnFrameworkUpdate(IFramework framework)
+	{
+		if (!_configuration.RefreshCurrentOnLevelUp)
+		{
+			_levelUpRefresh.Clear();
+			return;
+		}
+
+		if (!_levelUpRefresh.ShouldStart(_runner.IsRunning, _gearsets.CurrentTarget()))
+			return;
+
+		var level = _levelUpRefresh.Level;
+		if (!_runner.StartCurrent())
+			return;
+
+		_levelUpRefresh.Clear();
+		Report($"Level {level} reached; refreshing current gear set.");
 	}
 
 	private void OnCommand(string command, string arguments)
@@ -71,6 +106,8 @@ public sealed class Plugin : IDalamudPlugin
 
 	private void OpenWindow() => _window.IsVisible = true;
 
+	private void SaveConfiguration() => PluginInterface.SavePluginConfig(_configuration);
+
 	private static void Report(string message)
 	{
 		ChatGui.Print($"[Gearset Refresher] {message}");
@@ -79,6 +116,8 @@ public sealed class Plugin : IDalamudPlugin
 
 	public void Dispose()
 	{
+		Framework.Update -= OnFrameworkUpdate;
+		ClientState.LevelChanged -= OnLevelChanged;
 		PluginInterface.UiBuilder.Draw -= _window.Draw;
 		PluginInterface.UiBuilder.OpenMainUi -= OpenWindow;
 		PluginInterface.UiBuilder.OpenConfigUi -= OpenWindow;

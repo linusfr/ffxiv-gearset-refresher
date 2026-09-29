@@ -22,6 +22,21 @@ AssertCommand("ALL", CommandAction.All);
 AssertCommand("cancel", CommandAction.Cancel);
 AssertCommand("unknown", CommandAction.Help);
 
+var levelUpRefresh = new LevelUpRefresh();
+levelUpRefresh.Queue(true, false, 19, 42, targets[1]);
+Assert(levelUpRefresh.ShouldStart(false, targets[1]), "Current job level-up should queue refresh.");
+Assert(levelUpRefresh.Level == 42, "Queued refresh should retain new level.");
+levelUpRefresh.Clear();
+
+levelUpRefresh.Queue(false, false, 19, 43, targets[1]);
+Assert(!levelUpRefresh.ShouldStart(false, targets[1]), "Disabled setting should not queue refresh.");
+levelUpRefresh.Queue(true, false, 24, 43, targets[1]);
+Assert(!levelUpRefresh.ShouldStart(false, targets[1]), "Inactive job level-up should not queue refresh.");
+levelUpRefresh.Queue(true, true, 19, 43, targets[1]);
+Assert(!levelUpRefresh.ShouldStart(false, targets[1]), "Running refresh should suppress level-up refresh.");
+levelUpRefresh.Queue(true, false, 19, 43, targets[1]);
+Assert(!levelUpRefresh.ShouldStart(false, targets[2]), "Job change should cancel queued refresh.");
+
 Console.WriteLine("All tests passed.");
 
 static void AssertIds(System.Collections.Generic.IReadOnlyList<GearsetTarget> actual, params int[] expected)
@@ -36,4 +51,10 @@ static void AssertCommand(string arguments, CommandAction expected)
 	var actual = CommandArguments.Parse(arguments);
 	if (actual != expected)
 		throw new InvalidOperationException($"Expected command {expected}, got {actual}.");
+}
+
+static void Assert(bool condition, string message)
+{
+	if (!condition)
+		throw new InvalidOperationException(message);
 }

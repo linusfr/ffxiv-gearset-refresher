@@ -9,6 +9,7 @@
 	<ItemGroup>
 		<Compile Include="../plugin/CommandArguments.cs" Link="CommandArguments.cs" />
 		<Compile Include="../plugin/GearsetTarget.cs" Link="GearsetTarget.cs" />
+		<Compile Include="../plugin/LevelUpRefresh.cs" Link="LevelUpRefresh.cs" />
 		<Compile Include="../plugin/RefreshPlan.cs" Link="RefreshPlan.cs" />
 	</ItemGroup>
 </Project>

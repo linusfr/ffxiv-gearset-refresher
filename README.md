@@ -27,6 +27,7 @@ Then open `/xlplugins`, search for **Gearset Refresher**, and select **Install**
 ## Features
 
 - Refresh the currently equipped gear set.
+- Optionally refresh current gear automatically after gaining a level.
 - Refresh one existing gear set for every job, then return to the starting set.
 - Use slash commands directly in FFXIV macros.
 - Cancel a refresh while it is running.
@@ -52,6 +53,10 @@ set. Other loadouts remain untouched.
 
 Bulk refreshes cannot start inside duties. An active refresh waits through combat
 and area changes before continuing.
+
+Enable **Refresh current gear on level up** in the plugin window to queue a
+refresh for the equipped gear set. It starts when changing gear is safe. Switching
+jobs or starting another refresh cancels the queued automatic refresh.
 
 ## Important Notes
 
