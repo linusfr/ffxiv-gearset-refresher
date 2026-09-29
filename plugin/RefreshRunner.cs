@@ -19,6 +19,7 @@ public sealed class RefreshRunner : IDisposable
 	private IReadOnlyList<GearsetTarget> _targets = Array.Empty<GearsetTarget>();
 	private int _targetIndex;
 	private int _startingGearsetId = -1;
+	private bool _allowDuty;
 	private bool _restoreAfterSuccess;
 	private bool _forceRestore;
 	private string _finalMessageAfterRestore = string.Empty;
@@ -46,7 +47,7 @@ public sealed class RefreshRunner : IDisposable
 
 	public bool StartCurrent()
 	{
-		if (!CanStart())
+		if (!CanStart(allowDuty: true))
 			return false;
 
 		var target = _gearsets.CurrentTarget();
@@ -56,12 +57,12 @@ public sealed class RefreshRunner : IDisposable
 			return false;
 		}
 
-		return Start(new[] { target }, restoreStartingSet: false);
+		return Start(new[] { target }, restoreStartingSet: false, allowDuty: true);
 	}
 
 	public bool StartAllJobs()
 	{
-		if (!CanStart())
+		if (!CanStart(allowDuty: false))
 			return false;
 
 		var currentId = _gearsets.CurrentGearsetId;
@@ -72,7 +73,7 @@ public sealed class RefreshRunner : IDisposable
 			return false;
 		}
 
-		return Start(targets, restoreStartingSet: true);
+		return Start(targets, restoreStartingSet: true, allowDuty: false);
 	}
 
 	public void Cancel()
@@ -83,7 +84,7 @@ public sealed class RefreshRunner : IDisposable
 		BeginRestore($"Refresh cancelled after {CompletedCount} of {TotalCount} gear sets.", force: true);
 	}
 
-	private bool CanStart()
+	private bool CanStart(bool allowDuty)
 	{
 		if (IsRunning)
 		{
@@ -91,19 +92,20 @@ public sealed class RefreshRunner : IDisposable
 			return false;
 		}
 
-		if (_gearsets.CanChangeGear(out var reason))
+		if (_gearsets.CanChangeGear(allowDuty, out var reason))
 			return true;
 
 		Status = reason;
 		return false;
 	}
 
-	private bool Start(IReadOnlyList<GearsetTarget> targets, bool restoreStartingSet)
+	private bool Start(IReadOnlyList<GearsetTarget> targets, bool restoreStartingSet, bool allowDuty)
 	{
 		_targets = targets;
 		_targetIndex = 0;
 		CompletedCount = 0;
 		_startingGearsetId = _gearsets.CurrentGearsetId;
+		_allowDuty = allowDuty;
 		_restoreAfterSuccess = restoreStartingSet;
 		_forceRestore = false;
 		_finalMessageAfterRestore = string.Empty;
@@ -118,7 +120,7 @@ public sealed class RefreshRunner : IDisposable
 		if (!IsRunning || DateTime.UtcNow < _nextActionAt)
 			return;
 
-		if (!_gearsets.CanChangeGear(out var reason))
+		if (!_gearsets.CanChangeGear(_allowDuty, out var reason))
 		{
 			Status = reason;
 			// Pauses should not consume transition timeout budget.

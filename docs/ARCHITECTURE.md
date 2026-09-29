@@ -23,7 +23,9 @@ coverage.
 
 ## Safety
 
-- No operation starts while logged out, in combat, or bound by duty.
+- No operation starts while logged out, in combat, or changing areas.
+- Current-set refreshes may run inside duties; bulk refreshes remain blocked
+  because they switch jobs.
 - Bulk mutation requires UI confirmation.
 - `/gearrefresh all` is itself explicit bulk confirmation for macro use.
 - Runner mutates only existing gear sets; it never creates or deletes one.

@@ -51,12 +51,13 @@ When a job has multiple gear sets, Gearset Refresher updates the currently
 equipped set if it belongs to that job. Otherwise, it updates the lowest-numbered
 set. Other loadouts remain untouched.
 
-Bulk refreshes cannot start inside duties. An active refresh waits through combat
-and area changes before continuing.
+Bulk refreshes cannot start inside duties. Current-set refreshes can run inside a
+duty but wait through combat and area changes before continuing.
 
 Enable **Refresh current gear on level up** in the plugin window to queue a
-refresh for the equipped gear set. It starts when changing gear is safe. Switching
-jobs or starting another refresh cancels the queued automatic refresh.
+refresh for the equipped gear set. It starts after combat ends, including inside
+a duty. Switching jobs or starting another refresh cancels the queued automatic
+refresh.
 
 ## Important Notes
 

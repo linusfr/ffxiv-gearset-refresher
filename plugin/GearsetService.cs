@@ -22,7 +22,7 @@ public sealed class GearsetService
 		_log = log;
 	}
 
-	public bool CanChangeGear(out string reason)
+	public bool CanChangeGear(bool allowDuty, out string reason)
 	{
 		if (!_clientState.IsLoggedIn)
 		{
@@ -36,7 +36,8 @@ public sealed class GearsetService
 			return false;
 		}
 
-		if (_condition[ConditionFlag.BoundByDuty])
+		// Current-set runs stay on same job; bulk runs must not switch jobs inside duties.
+		if (!allowDuty && _condition[ConditionFlag.BoundByDuty])
 		{
 			reason = "Leave the duty before refreshing gear sets.";
 			return false;
