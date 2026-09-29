@@ -1,10 +1,10 @@
-## 1.1.0 (2026-09-29)
+## 1.1.1 (2026-09-29)
 
-#### Feature
+#### Bug Fixes
 
-* allow automatic refresh on level up (ceb7bcd6)
+* update gear out of combat (8c1c8795)
 
 #### Chores
 
-* pluginmaster 1.0.0 [skip ci] (633eb9b4)
+* pluginmaster 1.1.0 [skip ci] (0399d089)
 
