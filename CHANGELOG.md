@@ -1,10 +1,10 @@
-## 1.2.0 (2026-09-29)
+## 1.2.1 (2026-10-01)
 
-#### Feature
+#### Bug Fixes
 
-* refresh on receiving gear (e6f6d082)
+* ignore soul crystals in loot refresh trigger (2052ba2b)
 
 #### Chores
 
-* pluginmaster 1.1.1 [skip ci] (3232fb21)
+* pluginmaster 1.2.0 [skip ci] (79105112)
 
