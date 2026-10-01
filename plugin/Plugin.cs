@@ -69,8 +69,11 @@ public sealed class Plugin : IDalamudPlugin
 
 	private void OnItemAdded(InventoryItemAddedArgs data)
 	{
+		// Equipping a soul crystal changes job and moves the previous crystal into the Armoury
+		// Chest; refreshing then would re-equip the old crystal and fight the job change.
 		if (!DataManager.GetExcelSheet<Item>().TryGetRow(data.Item.BaseItemId, out var item) ||
-			item.EquipSlotCategory.RowId == 0)
+			item.EquipSlotCategory.RowId == 0 ||
+			item.EquipSlotCategory.Value.SoulCrystal != 0)
 			return;
 
 		_lootRefresh.Queue(

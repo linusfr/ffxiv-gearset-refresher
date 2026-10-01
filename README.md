@@ -62,8 +62,8 @@ a duty. Switching jobs or starting another refresh cancels the queued automatic
 refresh.
 
 Enable **Refresh current gear after receiving loot** to apply the same behavior
-when equipment enters inventory or Armoury Chest. Materials, consumables, and
-inventory moves do not trigger a refresh.
+when equipment enters inventory or Armoury Chest. Materials, consumables, soul
+crystals, and inventory moves do not trigger a refresh.
 
 ## Important Notes
 
